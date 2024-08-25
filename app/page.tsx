@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge"
 import { Search, Plus, Github } from 'lucide-react'
 import Papa from 'papaparse'
+import Head from 'next/head'
 
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1xJm8JnKXbzGdFalzKBzHjvN8cou-4fIa5jH7IbC1dWE/pub?output=csv';
 const GOOGLE_PROJECT_FORM_URL = 'https://docs.google.com/forms/d/1ujCN1QEKRu64f9Sub2ZzqoUWXPf0B33N8Nop0PnjvTE/viewform?edit_requested=true&fbzx=-1925584451870821221';
@@ -25,7 +26,10 @@ const dummyProject = {
   feedbackFormUrl: "https://forms.gle/exampleFeedbackForm",
   githubRepoUrl: "https://github.com/example/ecotrack"
 }
-
+export const metadata = {
+  title: 'UCEK Project Hub',
+  description: 'Explore and submit student projects at UCEK',
+};
 export default function StudentProjectHub() {
   const [projects, setProjects] = useState([dummyProject])
   const [searchTerm, setSearchTerm] = useState('')
@@ -88,6 +92,10 @@ export default function StudentProjectHub() {
 
   return (
     <div className="container mx-auto p-4">
+      <Head>
+        <title>UCEK Project Hub</title>
+        <meta name="description" content="Explore and submit student projects at UCEK" />
+      </Head>
       <h1 className="text-3xl font-bold mb-6">UCEK Project Hub</h1>
       
       <div className="flex gap-4 mb-6">
