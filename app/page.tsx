@@ -157,7 +157,7 @@ export default function StudentProjectHub() {
           {filteredProjects.map((project) => (
             <Card
               key={project.id}
-              className="flex flex-col transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-lg"
+              className="flex flex-col transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-lg animate-fade-in"
             >
               <CardHeader>
                 <CardTitle>{project.title}</CardTitle>
@@ -193,13 +193,13 @@ export default function StudentProjectHub() {
                       View Details
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-3xl">
+                  <DialogContent className="max-w-[90vw] w-full md:max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                      <DialogTitle>{project.title}</DialogTitle>
-                      <DialogDescription>By {project.author}</DialogDescription>
+                      <DialogTitle className="text-xl md:text-2xl">{project.title}</DialogTitle>
+                      <DialogDescription className="text-sm md:text-base">By {project.author}</DialogDescription>
                     </DialogHeader>
                     {project.imageUrl && (
-                      <div className="relative w-full h-64 my-4">
+                      <div className="relative w-full h-48 md:h-64 my-4">
                         <Image
                           src={project.imageUrl}
                           alt={project.title}
@@ -209,17 +209,17 @@ export default function StudentProjectHub() {
                         />
                       </div>
                     )}
-                    <p>{project.description}</p>
+                    <p className="text-sm md:text-base">{project.description}</p>
                     {project.tags && project.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {project.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary">
+                          <Badge key={index} variant="secondary" className="text-xs md:text-sm">
                             {tag}
                           </Badge>
                         ))}
                       </div>
                     )}
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-xs md:text-sm text-gray-500 mt-2">
                       Submitted on:{" "}
                       {project.timestamp
                         ? (() => {
@@ -238,16 +238,18 @@ export default function StudentProjectHub() {
                           })()
                         : "Date not available"}
                     </p>
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col md:flex-row gap-2 mt-4">
                       <Button
                         onClick={() => openFeedbackForm(project)}
                         disabled={!project.feedbackFormUrl}
+                        className="w-full md:w-auto"
                       >
                         Provide Feedback
                       </Button>
                       <Button
                         onClick={() => openGithubRepo(project)}
                         disabled={!project.githubRepoUrl}
+                        className="w-full md:w-auto"
                       >
                         <Github className="mr-2 h-4 w-4" /> View on GitHub
                       </Button>
