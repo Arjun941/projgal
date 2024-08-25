@@ -89,10 +89,7 @@ export default function StudentProjectHub() {
 
   return (
     <div className="container mx-auto p-4">
-      <Head>
-        <title>UCEK Project Hub</title>
-        <meta name="description" content="Explore and submit student projects at UCEK" />
-      </Head>
+    
       <h1 className="text-3xl font-bold mb-6">UCEK Project Hub</h1>
       
       <div className="flex gap-4 mb-6">
