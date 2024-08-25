@@ -1,113 +1,182 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { Search, Plus } from 'lucide-react'
+import Papa from 'papaparse'
+
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1xJm8JnKXbzGdFalzKBzHjvN8cou-4fIa5jH7IbC1dWE/pub?output=csv';
+const GOOGLE_PROJECT_FORM_URL = 'https://docs.google.com/forms/d/1ujCN1QEKRu64f9Sub2ZzqoUWXPf0B33N8Nop0PnjvTE/viewform?edit_requested=true&fbzx=-1925584451870821221';
+
+// Dummy project data
+const dummyProject = {
+  id: 0,
+  title: "EcoTrack: Campus Sustainability Monitor",
+  description: "EcoTrack is an IoT-based system that monitors and visualizes real-time energy consumption, waste management, and carbon emissions across our college campus. It uses a network of sensors to collect data, which is then processed and displayed on an interactive dashboard. The project aims to raise awareness about sustainability and drive behavioral changes among students and staff.",
+  author: "Alex Chen",
+  imageUrl: "https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
+  timestamp: new Date().toISOString(),
+  tags: ["IoT", "Sustainability", "Data Visualization"],
+  feedbackFormUrl: "https://forms.gle/exampleFeedbackForm"
+}
+
+export default function StudentProjectHub() {
+  const [projects, setProjects] = useState([dummyProject])
+  const [searchTerm, setSearchTerm] = useState('')
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    Papa.parse(GOOGLE_SHEET_CSV_URL, {
+      download: true,
+      header: true,
+      complete: (results) => {
+        const parsedProjects = results.data
+          .filter((row: any) => row['Project Title'] && row['Project Title'].trim() !== '')
+          .map((row: any, index) => ({
+            id: index + 1,
+            title: row['Project Title'] || '',
+            description: row['Project Description'] || '',
+            author: row['Author Name'] || '',
+            imageUrl: row['Image URL'] || '',
+            tags: row['Project Tags'] ? row['Project Tags'].split(',').map((tag: string) => tag.trim()) : [],
+            feedbackFormUrl: row['Feedback Form URL (optional)'] || null,
+            timestamp: row['Timestamp'] || new Date().toISOString(),
+          }));
+        setProjects([dummyProject, ...parsedProjects]);
+      },
+      error: (error) => {
+        console.error('Error fetching projects:', error);
+      }
+    });
+  };
+
+  const openProjectSubmissionForm = () => {
+    window.open(GOOGLE_PROJECT_FORM_URL, '_blank');
+  };
+
+  const openFeedbackForm = (project: any) => {
+    if (project.feedbackFormUrl) {
+      window.open(project.feedbackFormUrl, '_blank');
+    } else {
+      alert("No feedback form available for this project.");
+    }
+  };
+
+  const filteredProjects = projects.filter(project => 
+    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6">UCEK Project Hub</h1>
+      
+      <div className="flex gap-4 mb-6">
+        <Button 
+          onClick={openProjectSubmissionForm}
+          className="transition-all duration-300 ease-in-out hover:bg-blue-600 hover:scale-105"
+        >
+          <Plus className="mr-2 h-4 w-4" /> Submit New Project
+        </Button>
+        <div className="relative flex-grow">
+          <Input
+            type="text"
+            placeholder="Search projects by name, author, or tag..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         </div>
       </div>
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+      {filteredProjects.length === 0 ? (
+        <p className="text-center text-gray-500 mt-8">No projects found matching your search.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredProjects.map((project) => (
+            <Card 
+              key={project.id} 
+              className="flex flex-col transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-lg"
+            >
+              <CardHeader>
+                <CardTitle>{project.title}</CardTitle>
+                <CardDescription>By {project.author}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                {project.imageUrl && (
+                  <div className="relative w-full h-48 mb-4">
+                    <Image
+                      src={project.imageUrl}
+                      alt={project.title}
+                      fill
+                      style={{objectFit: "cover"}}
+                      className="rounded-md"
+                    />
+                  </div>
+                )}
+                <p className="line-clamp-3">{project.description}</p>
+                {project.tags && project.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {project.tags.map((tag, index) => (
+                      <Badge key={index} variant="secondary">{tag}</Badge>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">View Details</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle>{project.title}</DialogTitle>
+                      <DialogDescription>By {project.author}</DialogDescription>
+                    </DialogHeader>
+                    {project.imageUrl && (
+                      <div className="relative w-full h-64 my-4">
+                        <Image
+                          src={project.imageUrl}
+                          alt={project.title}
+                          fill
+                          style={{objectFit: "contain"}}
+                          className="rounded-md"
+                        />
+                      </div>
+                    )}
+                    <p>{project.description}</p>
+                    {project.tags && project.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {project.tags.map((tag, index) => (
+                          <Badge key={index} variant="secondary">{tag}</Badge>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-sm text-gray-500 mt-2">Submitted on: {new Date(project.timestamp).toLocaleString()}</p>
+                    <Button 
+                      className="mt-4" 
+                      onClick={() => openFeedbackForm(project)}
+                      disabled={!project.feedbackFormUrl}
+                    >
+                      Provide Feedback
+                    </Button>
+                  </DialogContent>
+                </Dialog>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
