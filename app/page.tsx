@@ -26,10 +26,7 @@ const dummyProject = {
   feedbackFormUrl: "https://forms.gle/exampleFeedbackForm",
   githubRepoUrl: "https://github.com/example/ecotrack"
 }
-export const metadata = {
-  title: 'UCEK Project Hub',
-  description: 'Explore and submit student projects at UCEK',
-};
+
 export default function StudentProjectHub() {
   const [projects, setProjects] = useState([dummyProject])
   const [searchTerm, setSearchTerm] = useState('')
