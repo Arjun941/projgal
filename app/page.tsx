@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Search, Plus } from 'lucide-react'
+import { Search, Plus, Github } from 'lucide-react'
 import Papa from 'papaparse'
 
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1xJm8JnKXbzGdFalzKBzHjvN8cou-4fIa5jH7IbC1dWE/pub?output=csv';
@@ -22,7 +22,8 @@ const dummyProject = {
   imageUrl: "https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
   timestamp: new Date().toISOString(),
   tags: ["IoT", "Sustainability", "Data Visualization"],
-  feedbackFormUrl: "https://forms.gle/exampleFeedbackForm"
+  feedbackFormUrl: "https://forms.gle/exampleFeedbackForm",
+  githubRepoUrl: "https://github.com/example/ecotrack"
 }
 
 export default function StudentProjectHub() {
@@ -48,6 +49,7 @@ export default function StudentProjectHub() {
             imageUrl: row['Image URL'] || '',
             tags: row['Project Tags'] ? row['Project Tags'].split(',').map((tag: string) => tag.trim()) : [],
             feedbackFormUrl: row['Feedback Form URL (optional)'] || null,
+            githubRepoUrl: row['GitHub Repo URL'] || null,
             timestamp: row['Timestamp'] || new Date().toISOString(),
           }));
         setProjects([dummyProject, ...parsedProjects]);
@@ -67,6 +69,14 @@ export default function StudentProjectHub() {
       window.open(project.feedbackFormUrl, '_blank');
     } else {
       alert("No feedback form available for this project.");
+    }
+  };
+
+  const openGithubRepo = (project: any) => {
+    if (project.githubRepoUrl) {
+      window.open(project.githubRepoUrl, '_blank');
+    } else {
+      alert("No GitHub repository available for this project.");
     }
   };
 
@@ -136,7 +146,7 @@ export default function StudentProjectHub() {
               <CardFooter>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="outline">View Details</Button>
+                    <Button variant="outline" className="mr-2">View Details</Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-3xl">
                     <DialogHeader>
@@ -163,13 +173,20 @@ export default function StudentProjectHub() {
                       </div>
                     )}
                     <p className="text-sm text-gray-500 mt-2">Submitted on: {new Date(project.timestamp).toLocaleString()}</p>
-                    <Button 
-                      className="mt-4" 
-                      onClick={() => openFeedbackForm(project)}
-                      disabled={!project.feedbackFormUrl}
-                    >
-                      Provide Feedback
-                    </Button>
+                    <div className="flex gap-2 mt-4">
+                      <Button 
+                        onClick={() => openFeedbackForm(project)}
+                        disabled={!project.feedbackFormUrl}
+                      >
+                        Provide Feedback
+                      </Button>
+                      <Button 
+                        onClick={() => openGithubRepo(project)}
+                        disabled={!project.githubRepoUrl}
+                      >
+                        <Github className="mr-2 h-4 w-4" /> View on GitHub
+                      </Button>
+                    </div>
                   </DialogContent>
                 </Dialog>
               </CardFooter>
